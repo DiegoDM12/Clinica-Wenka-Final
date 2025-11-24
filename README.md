@@ -1,7 +1,8 @@
 Clínica Wenka  
 Sistema de Gestión de Citas Multidisciplinarias
 
-![Demo](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaXRvYnhuYmt6MTFvZHZtcGUzcmpoMjlqa3M5c2E5bTZhNjM3YjE1YiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/PeWnI8Rk63M8s/giphy.gif)
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/232854f9-4e0f-475e-98d5-78e498586548" />
+
 
 Clínica Wenka es una aplicación fullstack diseñada para gestionar citas médicas en una clínica multidisciplinaria.  
 Permite a los pacientes visualizar especialistas, solicitar citas y recibir confirmaciones por parte de los profesionales.  
