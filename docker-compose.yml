@@ -1,0 +1,79 @@
+services:
+  # --- Base de datos (MySQL) ---
+  db:
+    image: mysql:8.0
+    container_name: wenka_db
+    environment:
+      MYSQL_ROOT_PASSWORD: wenka_secret
+      MYSQL_DATABASE: wenka_db
+      MYSQL_USER: wenka_user
+      MYSQL_PASSWORD: wenka_secret
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/db/TablasWenka.sql:/docker-entrypoint-initdb.d/01-TablasWenka.sql
+      - ./backend/db/datosPrueba.sql:/docker-entrypoint-initdb.d/02-datosPrueba.sql
+    networks:
+      - wenka-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pwenka_secret"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --- Backend (Go) ---
+  backend:
+    build: ./backend
+    container_name: wenka_backend
+    ports:
+      - "8180:8180" 
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: wenka_user
+      DB_PASSWORD: wenka_secret
+      DB_NAME: wenka_db
+      SERVER_PORT: 8180  
+      JWT_SECRET: secreto-clinica-wenka-dev
+      ENVIRONMENT: development
+      CORS_ORIGINS: http://localhost:3000
+      BACKEND_URL: http://localhost:8180  
+      FRONTEND_URL: http://localhost:3000  
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - wenka-network
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  # --- Frontend (Next.js) ---
+  frontend:
+    build: ./frontend
+    container_name: wenka_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_URL_INTERNAL: http://backend:8180  
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:8180  
+      NEXT_TELEMETRY_DISABLED: 1
+    depends_on:
+      - backend
+    networks:
+      - wenka-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped
+
+networks:
+  wenka-network:
+    driver: bridge
+
+volumes:
+  db_data:
